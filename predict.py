@@ -42,75 +42,17 @@ class Predictor(BasePredictor):
 
     def predict(
         self,
-        prompt: str = Input(description="Prompt"),
-        negative_prompt: str = Input(description="Negative Prompt", default=""),
-        width: int = Input(
-            description="Width of output image", ge=1, le=1024, default=512
-        ),
-        height: int = Input(
-            description="Height of output image", ge=1, le=1024, default=512
-        ),
-        num_outputs: int = Input(
-            description="Number of images to output", ge=1, le=4, default=1
-        ),
-        scheduler: str = Input(
-            description="scheduler",
-            choices=['DPM++ 2M Karras', 'DPM++ SDE Karras', 'DPM++ 2M SDE Exponential', 'DPM++ 2M SDE Karras', 'Euler a', 'Euler', 'LMS', 'Heun', 'DPM2', 'DPM2 a', 'DPM++ 2S a', 'DPM++ 2M', 'DPM++ SDE', 'DPM++ 2M SDE', 'DPM++ 2M SDE Heun', 'DPM++ 2M SDE Heun Karras', 'DPM++ 2M SDE Heun Exponential', 'DPM++ 3M SDE', 'DPM++ 3M SDE Karras', 'DPM++ 3M SDE Exponential', 'DPM fast', 'DPM adaptive', 'LMS Karras', 'DPM2 Karras', 'DPM2 a Karras', 'DPM++ 2S a Karras', 'Restart', 'DDIM', 'PLMS', 'UniPC'],
-            default="DPM++ SDE Karras",
-        ),
-        num_inference_steps: int = Input(
-            description="Number of denoising steps", ge=1, le=100, default=20
-        ),
-        guidance_scale: float = Input(
-            description="Scale for classifier-free guidance", ge=1, le=50, default=7.5
-        ),
-        seed: int = Input(
-            description="Random seed. Leave blank to randomize the seed", default=-1
-        ),
-        # image: Path = Input(description="Grayscale input image"),
-        enable_hr: bool = Input(
-            description="Hires. fix", default=False,
-        ),
-        hr_upscaler: str = Input(
-            description="Upscaler for Hires. fix",
-            choices=['Latent', 'Latent (antialiased)', 'Latent (bicubic)', 'Latent (bicubic antialiased)', 'Latent (nearest)', 'Latent (nearest-exact)', 'None', 'Lanczos', 'Nearest', 'ESRGAN_4x', 'LDSR', 'R-ESRGAN 4x+', 'R-ESRGAN 4x+ Anime6B', 'ScuNET GAN', 'ScuNET PSNR', 'SwinIR 4x'],
-            default="Latent",
-        ),
-        hr_steps: int = Input(
-            description="Inference steps for Hires. fix", ge=0, le=100, default=20
-        ),
-        denoising_strength: float = Input(
-            description="Denoising strength. 1.0 corresponds to full destruction of information in init image", ge=0, le=1, default=0.5
-        ),
-        hr_scale: float = Input(
-            description="Factor to scale image by", ge=1, le=4, default=2
-        ),
+        payloadStr: str = Input(description="Payload"),
+        
     ) -> list[Path]:
         """Run a single prediction on the model"""
         # processed_input = preprocess(image)
         # output = self.model(processed_image, scale)
         # return postprocess(output)
-        payload = {
-            # "init_images": [encoded_image],
-            "prompt": prompt,
-            "negative_prompt": negative_prompt,
-            "width": width,
-            "height": height,
-            "batch_size": num_outputs,
-            "steps": num_inference_steps,
-            "cfg_scale": guidance_scale,
-            "seed": seed,
-            "do_not_save_samples": True,
-            "sampler_name": scheduler,
-            "enable_hr": enable_hr,
-            "hr_upscaler": hr_upscaler,
-            "hr_second_pass_steps": hr_steps,
-            "denoising_strength": denoising_strength if enable_hr else None,
-            "hr_scale": hr_scale,
-        }
-
+        
         from modules.api.models import StableDiffusionTxt2ImgProcessingAPI, StableDiffusionImg2ImgProcessingAPI
-        req = StableDiffusionTxt2ImgProcessingAPI(**payload)
+        nPayload = json.loads(payloadStr)
+        req = StableDiffusionTxt2ImgProcessingAPI(**nPayload)
         # generate
         resp = self.api.text2imgapi(req)
         info = json.loads(resp.info)

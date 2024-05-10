@@ -28,7 +28,21 @@ build:
     - wget --content-disposition -P /stable-diffusion-webui/models/Stable-diffusion "https://civitai.com/api/download/models/176425?type=Model&format=SafeTensor&size=pruned&fp=fp16"
     - git clone https://github.com/LLSean/cog-A1111-webui /cog-sd-webui
     - python /cog-sd-webui/init_env.py --skip-torch-cuda-test
+    - cd /stable-diffusion-webui
+    - git clone https://github.com/Mikubill/sd-webui-controlnet.git /stable-diffusion-webui/extensions/sd-webui-controlnet
+    - git clone --depth=1 https://github.com/Gourieff/sd-webui-reactor.git /stable-diffusion-webui/extensions/sd-webui-reactor
+    - cd /stable-diffusion-webui/extensions/sd-webui-controlnet && pip3 install -r requirements.txt
+    - cd /stable-diffusion-webui/extensions/sd-webui-reactor && pip3 install -r requirements.txt
+    - mkdir -p /stable-diffusion-webui/models/insightface && cd /stable-diffusion-webui/models/insightface && wget https://github.com/facefusion/facefusion-assets/releases/download/models/inswapper_128.onnx
+    - echo "CUDA" > /stable-diffusion-webui/extensions/sd-webui-reactor/last_device.txt
+    - wget --content-disposition -P /stable-diffusion-webui/models/GFPGAN "https://github.com/xinntao/facexlib/releases/download/v0.2.0/parsing_bisenet.pth"
+    - mkdir -p /stable-diffusion-webui/models/Codeformer && wget -O /stable-diffusion-webui/models/Codeformer/codeformer-v0.1.0.pth "https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/codeformer.pth"
+    - mkdir -p /stable-diffusion-webui/models/GFPGAN && wget -O /stable-diffusion-webui/models/GFPGAN/detection_Resnet50_Final.pth "https://github.com/xinntao/facexlib/releases/download/v0.1.0/detection_Resnet50_Final.pth"
+    - wget -O /stable-diffusion-webui/models/GFPGAN/parsing_parsenet.pth "https://github.com/xinntao/facexlib/releases/download/v0.2.2/parsing_parsenet.pth"  
+    - python /cog-sd-webui/init_env.py --skip-torch-cuda-test
 
-image: "r8.im/llsean/cog-a1111-webui"
+
+
+image: "r8.im/cocodev1/a1111-reactor-controlnet"
 # predict.py defines how predictions are run on your model
 predict: "predict.py:Predictor"
